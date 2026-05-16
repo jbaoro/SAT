@@ -1,24 +1,30 @@
 import { useMemo, useState } from 'react'
 import {
-  createKoreanReadingProblem,
+  createKoreanReadingSet,
   type Difficulty,
-  type KoreanProblem,
+  type KoreanPassageSet,
+  type KoreanQuestion,
   type PassageDomain,
-  type ProblemType,
   type StyleMode,
 } from './generators/koreanReading'
 import './App.css'
 
-type GradingState = 'idle' | 'correct' | 'wrong'
+type GradingState = 'idle' | 'graded'
+type AnswerMap = Record<string, string>
 
-type SavedProblem = KoreanProblem & {
+type SavedProblem = {
+  id: string
   savedAt: string
+  domain: PassageDomain
+  difficulty: Difficulty
+  passageTitle: string
+  concept: string
+  question: KoreanQuestion
   submittedAnswer: string
 }
 
 const difficulties: Difficulty[] = ['개념', '표준', '실전']
 const passageDomains: PassageDomain[] = ['경제', '과학', '법']
-const problemTypes: ProblemType[] = ['내용 일치', '보기 적용', '추론']
 const styleModes: StyleMode[] = ['평가원형', 'EBS 학습형', '고난도 실전형']
 
 const storageKey = 'sat-practice-generator.korean-reading.saved'
@@ -42,48 +48,60 @@ function loadSavedProblems(): SavedProblem[] {
 function App() {
   const [domain, setDomain] = useState<PassageDomain>('경제')
   const [difficulty, setDifficulty] = useState<Difficulty>('표준')
-  const [problemType, setProblemType] = useState<ProblemType>('내용 일치')
   const [styleMode, setStyleMode] = useState<StyleMode>('평가원형')
-  const [submittedAnswer, setSubmittedAnswer] = useState('')
+  const [answers, setAnswers] = useState<AnswerMap>({})
   const [gradingState, setGradingState] = useState<GradingState>('idle')
   const [savedProblems, setSavedProblems] = useState<SavedProblem[]>(loadSavedProblems)
-  const [problem, setProblem] = useState<KoreanProblem>(() =>
-    createKoreanReadingProblem('경제', '표준', '내용 일치', '평가원형'),
+  const [passageSet, setPassageSet] = useState<KoreanPassageSet>(() =>
+    createKoreanReadingSet('경제', '표준', '평가원형'),
   )
 
-  const isAnswered = gradingState !== 'idle'
-  const scoreLabel = useMemo(() => {
-    if (gradingState === 'correct') return '정답'
-    if (gradingState === 'wrong') return '오답'
-    return '미채점'
-  }, [gradingState])
+  const isGraded = gradingState === 'graded'
+  const answeredCount = passageSet.questions.filter((question) => answers[question.id]).length
+  const score = useMemo(
+    () =>
+      passageSet.questions.filter(
+        (question) => normalizeAnswer(answers[question.id] ?? '') === normalizeAnswer(question.answer),
+      ).length,
+    [answers, passageSet.questions],
+  )
 
-  const generateProblem = () => {
-    setProblem(createKoreanReadingProblem(domain, difficulty, problemType, styleMode))
-    setSubmittedAnswer('')
+  const generateSet = () => {
+    setPassageSet(createKoreanReadingSet(domain, difficulty, styleMode))
+    setAnswers({})
     setGradingState('idle')
   }
 
-  const saveWrongProblem = (answer: string) => {
-    const alreadySaved = savedProblems.some((savedProblem) => savedProblem.id === problem.id)
-    if (alreadySaved) return
+  const selectAnswer = (questionId: string, answer: string) => {
+    if (isGraded) return
+    setAnswers((currentAnswers) => ({ ...currentAnswers, [questionId]: answer }))
+  }
 
-    const nextProblems = [
-      { ...problem, submittedAnswer: answer || '무응답', savedAt: new Date().toISOString() },
-      ...savedProblems,
-    ].slice(0, 12)
+  const saveWrongProblems = () => {
+    const wrongProblems = passageSet.questions
+      .filter((question) => normalizeAnswer(answers[question.id] ?? '') !== normalizeAnswer(question.answer))
+      .filter((question) => !savedProblems.some((savedProblem) => savedProblem.id === question.id))
+      .map((question) => ({
+        id: question.id,
+        savedAt: new Date().toISOString(),
+        domain: passageSet.domain,
+        difficulty: passageSet.difficulty,
+        passageTitle: passageSet.passageTitle,
+        concept: passageSet.concept,
+        question,
+        submittedAnswer: answers[question.id] || '무응답',
+      }))
 
+    if (wrongProblems.length === 0) return
+
+    const nextProblems = [...wrongProblems, ...savedProblems].slice(0, 12)
     setSavedProblems(nextProblems)
     localStorage.setItem(storageKey, JSON.stringify(nextProblems))
   }
 
-  const gradeProblem = () => {
-    const isCorrect = normalizeAnswer(submittedAnswer) === normalizeAnswer(problem.answer)
-    setGradingState(isCorrect ? 'correct' : 'wrong')
-
-    if (!isCorrect) {
-      saveWrongProblem(submittedAnswer)
-    }
+  const gradeSet = () => {
+    setGradingState('graded')
+    saveWrongProblems()
   }
 
   return (
@@ -91,13 +109,13 @@ function App() {
       <aside className="side-panel">
         <div className="brand-block">
           <span>수능 문제 연구소</span>
-          <h1>국어 비문학 집중 모드</h1>
+          <h1>국어 독서 지문 세트</h1>
         </div>
 
         <div className="subject-lock">
           <span>과목</span>
           <strong>국어 · 독서</strong>
-          <small>분야별 약점을 골라 긴 비문학 지문으로 훈련합니다.</small>
+          <small>하나의 긴 지문에 3문항을 붙여 실전 세트처럼 풉니다.</small>
         </div>
 
         <div className="control-group">
@@ -133,15 +151,6 @@ function App() {
         </div>
 
         <label className="select-field">
-          <span>문항 유형</span>
-          <select value={problemType} onChange={(event) => setProblemType(event.target.value as ProblemType)}>
-            {problemTypes.map((item) => (
-              <option key={item}>{item}</option>
-            ))}
-          </select>
-        </label>
-
-        <label className="select-field">
           <span>출제 스타일</span>
           <select value={styleMode} onChange={(event) => setStyleMode(event.target.value as StyleMode)}>
             {styleModes.map((item) => (
@@ -150,71 +159,86 @@ function App() {
           </select>
         </label>
 
-        <button className="primary-action" onClick={generateProblem} type="button">
-          국어 문제 출제
+        <button className="primary-action" onClick={generateSet} type="button">
+          새 지문 세트 출제
         </button>
       </aside>
 
       <section className="exam-area">
         <header className="exam-header">
           <div>
-            <p>기출 원문 복제가 아닌 국어 독서 출제 패턴 기반 새 문항</p>
-            <h2>{problem.domain} · {problem.passageTitle}</h2>
+            <p>기출 원문 복제가 아닌 국어 독서 출제 패턴 기반 새 지문 세트</p>
+            <h2>{passageSet.domain} · {passageSet.passageTitle}</h2>
           </div>
-          <div className={`score-chip ${gradingState}`}>{scoreLabel}</div>
+          <div className={`score-chip ${isGraded ? 'correct' : ''}`}>
+            {isGraded ? `${score}/3` : `${answeredCount}/3`}
+          </div>
         </header>
 
         <article className="paper">
           <div className="paper-meta">
             <span>국어 독서</span>
-            <span>{problem.domain}</span>
-            <span>{problem.difficulty}</span>
-            <span>{problem.problemType}</span>
-            <span>{problem.styleMode}</span>
+            <span>{passageSet.domain}</span>
+            <span>{passageSet.difficulty}</span>
+            <span>{passageSet.styleMode}</span>
           </div>
 
-          <p className="passage">{problem.passage}</p>
+          <p className="passage">{passageSet.passage}</p>
 
-          <section className="question-block">
-            <span className="question-number">01</span>
-            <h3>{problem.question}</h3>
+          <section className="question-set">
+            {passageSet.questions.map((question) => {
+              const selectedAnswer = answers[question.id]
+              const isCorrect = normalizeAnswer(selectedAnswer ?? '') === normalizeAnswer(question.answer)
+
+              return (
+                <section className="question-card" key={question.id}>
+                  <div className="question-block">
+                    <span className="question-number">{String(question.number).padStart(2, '0')}</span>
+                    <div>
+                      <p className="question-type">{question.problemType}</p>
+                      <h3>{question.question}</h3>
+                    </div>
+                  </div>
+
+                  <ol className="choices">
+                    {question.choices.map((choice, index) => (
+                      <li key={choice}>
+                        <button
+                          className={selectedAnswer === choice ? 'selected' : ''}
+                          disabled={isGraded}
+                          onClick={() => selectAnswer(question.id, choice)}
+                          type="button"
+                        >
+                          <span>{index + 1}</span>
+                          {choice}
+                        </button>
+                      </li>
+                    ))}
+                  </ol>
+
+                  {isGraded && (
+                    <section className={`solution-panel ${isCorrect ? 'correct' : 'wrong'}`}>
+                      <div>
+                        <span>{isCorrect ? '정답' : '오답'}</span>
+                        <strong>{question.answer}</strong>
+                      </div>
+                      <p>{question.explanation}</p>
+                      <small>{question.wrongReason}</small>
+                    </section>
+                  )}
+                </section>
+              )
+            })}
           </section>
 
-          <ol className="choices">
-            {problem.choices.map((choice, index) => (
-              <li key={choice}>
-                <button
-                  className={submittedAnswer === choice ? 'selected' : ''}
-                  disabled={isAnswered}
-                  onClick={() => setSubmittedAnswer(choice)}
-                  type="button"
-                >
-                  <span>{index + 1}</span>
-                  {choice}
-                </button>
-              </li>
-            ))}
-          </ol>
-
           <div className="exam-actions">
-            <button disabled={!submittedAnswer || isAnswered} onClick={gradeProblem} type="button">
-              채점하기
+            <button disabled={answeredCount < passageSet.questions.length || isGraded} onClick={gradeSet} type="button">
+              세트 채점하기
             </button>
-            <button onClick={generateProblem} type="button">
-              다음 문제
+            <button onClick={generateSet} type="button">
+              다음 지문 세트
             </button>
           </div>
-
-          {isAnswered && (
-            <section className="solution-panel">
-              <div>
-                <span>정답</span>
-                <strong>{problem.answer}</strong>
-              </div>
-              <p>{problem.explanation}</p>
-              <small>{problem.wrongReason}</small>
-            </section>
-          )}
         </article>
       </section>
 
@@ -231,7 +255,9 @@ function App() {
           <ul>
             {savedProblems.map((savedProblem) => (
               <li key={savedProblem.id}>
-                <span>{savedProblem.domain} · {savedProblem.difficulty} · {savedProblem.problemType}</span>
+                <span>
+                  {savedProblem.domain} · {savedProblem.difficulty} · {savedProblem.question.problemType}
+                </span>
                 <strong>{savedProblem.concept}</strong>
                 <small>내 답: {savedProblem.submittedAnswer}</small>
               </li>

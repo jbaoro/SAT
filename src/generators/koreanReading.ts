@@ -3,21 +3,27 @@ export type PassageDomain = '경제' | '과학' | '법'
 export type ProblemType = '내용 일치' | '보기 적용' | '추론'
 export type StyleMode = '평가원형' | 'EBS 학습형' | '고난도 실전형'
 
-export type KoreanProblem = {
+export type KoreanQuestion = {
   id: string
-  domain: PassageDomain
-  difficulty: Difficulty
+  number: number
   problemType: ProblemType
-  styleMode: StyleMode
-  passageTitle: string
-  passage: string
   question: string
   choices: string[]
   answer: string
   explanation: string
+  wrongReason: string
+}
+
+export type KoreanPassageSet = {
+  id: string
+  domain: PassageDomain
+  difficulty: Difficulty
+  styleMode: StyleMode
+  passageTitle: string
+  passage: string
   concept: string
   evidence: string
-  wrongReason: string
+  questions: KoreanQuestion[]
 }
 
 type PassagePattern = {
@@ -175,34 +181,50 @@ function getQuestion(problemType: ProblemType, styleMode: StyleMode) {
   return `윗글의 내용과 일치하는 것으로${suffix}`
 }
 
-export function createKoreanReadingProblem(
-  domain: PassageDomain,
-  difficulty: Difficulty,
+function createQuestion(
+  setId: string,
+  pattern: PassagePattern,
   problemType: ProblemType,
   styleMode: StyleMode,
-): KoreanProblem {
-  const seed = Date.now()
-  const domainPatterns = patterns.filter((pattern) => pattern.domain === domain)
-  const pattern = pick(domainPatterns, seed)
+  number: number,
+): KoreanQuestion {
   const choices = buildChoices(pattern, problemType, styleMode)
   const answer = getAnswer(problemType, pattern)
 
   return {
-    id: `korean-reading-${domain}-${difficulty}-${problemType}-${styleMode}-${seed}`,
-    domain,
-    difficulty,
+    id: `${setId}-q${number}`,
+    number,
     problemType,
-    styleMode,
-    passageTitle: pattern.title,
-    passage: buildPassage(pattern, styleMode),
     question: getQuestion(problemType, styleMode),
     choices,
     answer,
-    concept: pattern.concept,
-    evidence: pattern.evidence,
     wrongReason:
       '오답은 글의 일부 표현만 맞거나, 대비되는 관점을 글쓴이의 최종 주장처럼 바꾸는 방식으로 설계했습니다.',
     explanation:
       `정답은 "${pattern.evidence}"라는 글의 결론부와 직접 연결됩니다. 선지를 고를 때는 사례의 표면 내용보다 그 사례가 중심 주장에 어떻게 쓰였는지 확인해야 합니다.`,
+  }
+}
+
+export function createKoreanReadingSet(
+  domain: PassageDomain,
+  difficulty: Difficulty,
+  styleMode: StyleMode,
+): KoreanPassageSet {
+  const seed = Date.now()
+  const domainPatterns = patterns.filter((pattern) => pattern.domain === domain)
+  const pattern = pick(domainPatterns, seed)
+  const id = `korean-reading-${domain}-${difficulty}-${styleMode}-${seed}`
+  const questionTypes: ProblemType[] = ['내용 일치', '추론', '보기 적용']
+
+  return {
+    id,
+    domain,
+    difficulty,
+    styleMode,
+    passageTitle: pattern.title,
+    passage: buildPassage(pattern, styleMode),
+    concept: pattern.concept,
+    evidence: pattern.evidence,
+    questions: questionTypes.map((type, index) => createQuestion(id, pattern, type, styleMode, index + 1)),
   }
 }
