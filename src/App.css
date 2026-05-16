@@ -52,6 +52,33 @@ p {
   margin-bottom: 34px;
 }
 
+.subject-lock {
+  display: grid;
+  gap: 6px;
+  border: 1px solid #d7dedc;
+  border-radius: 8px;
+  background: #ffffff;
+  margin-bottom: 24px;
+  padding: 14px;
+}
+
+.subject-lock span {
+  color: #60706c;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.subject-lock strong {
+  color: #113d36;
+  font-size: 18px;
+}
+
+.subject-lock small {
+  color: #687775;
+  line-height: 1.5;
+}
+
 .brand-block span,
 .review-header span,
 .exam-header p {
