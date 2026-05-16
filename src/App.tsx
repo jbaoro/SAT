@@ -3,6 +3,7 @@ import {
   createKoreanReadingProblem,
   type Difficulty,
   type KoreanProblem,
+  type PassageDomain,
   type ProblemType,
   type StyleMode,
 } from './generators/koreanReading'
@@ -16,6 +17,7 @@ type SavedProblem = KoreanProblem & {
 }
 
 const difficulties: Difficulty[] = ['개념', '표준', '실전']
+const passageDomains: PassageDomain[] = ['경제', '과학', '법']
 const problemTypes: ProblemType[] = ['내용 일치', '보기 적용', '추론']
 const styleModes: StyleMode[] = ['평가원형', 'EBS 학습형', '고난도 실전형']
 
@@ -38,6 +40,7 @@ function loadSavedProblems(): SavedProblem[] {
 }
 
 function App() {
+  const [domain, setDomain] = useState<PassageDomain>('경제')
   const [difficulty, setDifficulty] = useState<Difficulty>('표준')
   const [problemType, setProblemType] = useState<ProblemType>('내용 일치')
   const [styleMode, setStyleMode] = useState<StyleMode>('평가원형')
@@ -45,7 +48,7 @@ function App() {
   const [gradingState, setGradingState] = useState<GradingState>('idle')
   const [savedProblems, setSavedProblems] = useState<SavedProblem[]>(loadSavedProblems)
   const [problem, setProblem] = useState<KoreanProblem>(() =>
-    createKoreanReadingProblem('표준', '내용 일치', '평가원형'),
+    createKoreanReadingProblem('경제', '표준', '내용 일치', '평가원형'),
   )
 
   const isAnswered = gradingState !== 'idle'
@@ -56,7 +59,7 @@ function App() {
   }, [gradingState])
 
   const generateProblem = () => {
-    setProblem(createKoreanReadingProblem(difficulty, problemType, styleMode))
+    setProblem(createKoreanReadingProblem(domain, difficulty, problemType, styleMode))
     setSubmittedAnswer('')
     setGradingState('idle')
   }
@@ -94,7 +97,23 @@ function App() {
         <div className="subject-lock">
           <span>과목</span>
           <strong>국어 · 독서</strong>
-          <small>한 과목부터 출제 문법을 촘촘하게 쌓는 중입니다.</small>
+          <small>분야별 약점을 골라 긴 비문학 지문으로 훈련합니다.</small>
+        </div>
+
+        <div className="control-group">
+          <p>지문 분야</p>
+          <div className="segmented">
+            {passageDomains.map((item) => (
+              <button
+                className={domain === item ? 'active' : ''}
+                key={item}
+                onClick={() => setDomain(item)}
+                type="button"
+              >
+                {item}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="control-group">
@@ -140,7 +159,7 @@ function App() {
         <header className="exam-header">
           <div>
             <p>기출 원문 복제가 아닌 국어 독서 출제 패턴 기반 새 문항</p>
-            <h2>{problem.passageTitle}</h2>
+            <h2>{problem.domain} · {problem.passageTitle}</h2>
           </div>
           <div className={`score-chip ${gradingState}`}>{scoreLabel}</div>
         </header>
@@ -148,6 +167,7 @@ function App() {
         <article className="paper">
           <div className="paper-meta">
             <span>국어 독서</span>
+            <span>{problem.domain}</span>
             <span>{problem.difficulty}</span>
             <span>{problem.problemType}</span>
             <span>{problem.styleMode}</span>
@@ -211,7 +231,7 @@ function App() {
           <ul>
             {savedProblems.map((savedProblem) => (
               <li key={savedProblem.id}>
-                <span>{savedProblem.difficulty} · {savedProblem.problemType}</span>
+                <span>{savedProblem.domain} · {savedProblem.difficulty} · {savedProblem.problemType}</span>
                 <strong>{savedProblem.concept}</strong>
                 <small>내 답: {savedProblem.submittedAnswer}</small>
               </li>
