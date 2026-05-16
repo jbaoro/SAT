@@ -11,7 +11,7 @@ import './App.css'
 type GradingState = 'idle' | 'graded'
 type AnswerMap = Record<string, string>
 
-const difficulties: Difficulty[] = ['개념', '표준', '실전']
+const difficulties: Difficulty[] = ['개념', '표준', '실전', '고난도']
 const passageDomains: PassageDomain[] = ['경제', '과학', '법']
 const styleModes: StyleMode[] = ['평가원형', 'EBS 학습형', '고난도 실전형']
 
@@ -154,6 +154,7 @@ function App() {
                     <div>
                       <p className="question-type">{question.problemType}</p>
                       <h3>{question.question}</h3>
+                      <span className="skill-focus">{question.skillFocus}</span>
                     </div>
                   </div>
 
@@ -188,6 +189,11 @@ function App() {
                       </div>
                       <p>{question.explanation}</p>
                       <small>{question.wrongReason}</small>
+                      <ol className="choice-explanations">
+                        {question.choiceExplanations.map((explanation) => (
+                          <li key={explanation}>{explanation}</li>
+                        ))}
+                      </ol>
                     </section>
                   )}
                 </section>

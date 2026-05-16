@@ -289,6 +289,17 @@ input {
   margin-bottom: 6px;
 }
 
+.skill-focus {
+  display: inline-flex;
+  border: 1px solid #d8dfdc;
+  border-radius: 999px;
+  color: #52635f;
+  font-size: 12px;
+  font-weight: 800;
+  margin-top: 10px;
+  padding: 4px 9px;
+}
+
 .view-box {
   display: grid;
   gap: 10px;
@@ -417,6 +428,19 @@ input {
   color: #4b4130;
   line-height: 1.6;
   padding: 12px 14px;
+}
+
+.choice-explanations {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid #dce2df;
+  margin: 4px 0 0;
+  padding: 14px 0 0 20px;
+}
+
+.choice-explanations li {
+  color: #344541;
+  line-height: 1.6;
 }
 
 @media (max-width: 1180px) {

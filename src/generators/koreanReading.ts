@@ -1,4 +1,4 @@
-export type Difficulty = '개념' | '표준' | '실전'
+export type Difficulty = '개념' | '표준' | '실전' | '고난도'
 export type PassageDomain = '경제' | '과학' | '법'
 export type ProblemType = '내용 일치' | '보기 적용' | '추론'
 export type StyleMode = '평가원형' | 'EBS 학습형' | '고난도 실전형'
@@ -13,6 +13,8 @@ export type KoreanQuestion = {
   answer: string
   explanation: string
   wrongReason: string
+  choiceExplanations: string[]
+  skillFocus: string
 }
 
 export type KoreanPassageSet = {
@@ -41,6 +43,7 @@ type PassagePattern = {
   implication: string
   limitation: string
   synthesis: string
+  advancedRelation: string
   evidence: string
   contentAnswer: string
   inferenceAnswer: string
@@ -75,6 +78,8 @@ const patterns: PassagePattern[] = [
       '그렇다고 모든 신호가 항상 시장을 개선하는 것은 아니다. 형식적인 인증처럼 비용은 낮고 효과는 과장된 신호가 늘어나면 구매자는 다시 신호 자체를 의심하게 된다.',
     synthesis:
       '결국 정보 비대칭의 문제는 정보가 부족하다는 사실만으로 설명되지 않는다. 핵심은 누가 어떤 정보를 가지고 있으며, 그 정보를 상대방이 믿을 수 있는 방식으로 전달할 수 있는가에 있다. 이 점에서 가격, 보증, 평판은 모두 독립된 장치가 아니라 시장 참여자들이 서로의 품질과 위험을 추정하는 과정 속에서 기능한다.',
+    advancedRelation:
+      '특히 신호가 효과를 갖는 조건은 정보 비대칭의 완전한 해소가 아니라 선택 가능한 대안들의 상대적 신뢰도를 높이는 데 있다. 구매자는 여전히 모든 품질 정보를 알 수 없지만, 책임이 따르는 신호를 통해 판매자 집단을 구분할 수 있다. 따라서 이 글의 논점은 정보가 많아질수록 시장이 자동으로 개선된다는 데 있지 않고, 정보가 어떤 비용 구조와 결합할 때 신뢰 가능한 판단 근거가 되는지에 있다.',
     evidence:
       '글쓴이는 정보 비대칭이 가격과 품질 선택을 왜곡할 수 있으며, 신호는 그 문제를 줄이지만 신뢰 조건을 갖추어야 한다고 본다.',
     contentAnswer:
@@ -127,6 +132,8 @@ const patterns: PassagePattern[] = [
       '다만 밀도 순환을 단순히 바닷물이 차가워져 가라앉는 현상으로만 이해하면 부족하다. 염분, 해빙, 담수 유입, 표층 흐름이 함께 작용하기 때문에 어느 한 요인만으로 순환 변화를 설명하기 어렵다.',
     synthesis:
       '따라서 해수 순환은 한 방향으로 흐르는 단순한 물길이라기보다, 여러 물리적 조건이 맞물려 유지되는 거대한 조절 체계로 보아야 한다. 표층과 심층의 흐름, 바닷물의 온도와 염분, 대기와 해빙의 변화는 서로 분리되어 있지 않다. 이러한 상호 작용을 고려할 때 해양의 변화가 기후 변화 논의에서 중요한 근거로 다루어지는 이유를 이해할 수 있다.',
+    advancedRelation:
+      '나아가 밀도 순환의 변화는 원인과 결과가 한 방향으로만 이어지는 단순한 과정이 아니다. 담수 유입은 염분을 낮추어 하강 흐름을 약화시킬 수 있고, 약화된 흐름은 열 이동을 바꾸어 다시 해빙과 대기 조건에 영향을 줄 수 있다. 이처럼 해양 조건과 기후 요소가 되먹임 관계를 이루기 때문에, 특정 관측 결과를 해석할 때에는 온도와 염분 중 하나만 떼어 내어 판단해서는 안 된다.',
     evidence:
       '글쓴이는 해수의 밀도 순환이 온도와 염분에 따른 밀도 차이로 작동하며, 전 지구적 열 이동과 기후 조절에 영향을 준다고 본다.',
     contentAnswer:
@@ -179,6 +186,8 @@ const patterns: PassagePattern[] = [
       '그러나 주의 의무를 지나치게 넓게 인정하면 모든 사고를 사후적으로 비난하게 되는 문제가 생긴다. 그래서 법적 책임은 손해 발생, 주의 의무 위반, 인과 관계가 함께 검토될 때 안정적으로 판단될 수 있다.',
     synthesis:
       '결국 과실 책임은 피해를 입은 사람을 보호하려는 목적과 행위자에게 부당한 부담을 지우지 않으려는 목적 사이에서 균형을 찾는 장치이다. 손해가 크다는 이유만으로 책임을 인정하면 예측할 수 없던 사고까지 모두 개인에게 떠넘기게 되고, 반대로 주의 의무를 지나치게 좁게 보면 피해 구제가 어려워진다. 그러므로 법은 결과와 행위 사이의 관련성을 단계적으로 따진다.',
+    advancedRelation:
+      '또한 과실 판단은 행위자의 심리 상태만을 묻는 절차가 아니라 사회적으로 요구되는 행위 기준을 정하는 과정이기도 하다. 같은 손해라도 위험의 종류, 예방 조치의 가능성, 행위가 이루어진 상황에 따라 책임 여부가 달라지는 이유가 여기에 있다. 결국 법은 피해자의 손해와 행위자의 자유를 동시에 고려하면서, 어느 지점에서 주의 의무 위반을 인정할 것인지 결정한다.',
     evidence:
       '글쓴이는 법적 책임이 손해라는 결과만으로 정해지지 않고, 주의 의무 위반과 예측 가능성, 인과 관계를 함께 따져야 한다고 본다.',
     contentAnswer:
@@ -214,47 +223,131 @@ function pick<T>(items: T[], seed: number) {
   return items[Math.abs(seed) % items.length]
 }
 
-function buildPassage(pattern: PassagePattern, styleMode: StyleMode) {
+function buildPassage(pattern: PassagePattern, difficulty: Difficulty, styleMode: StyleMode) {
   const styleOpening =
     styleMode === 'EBS 학습형'
       ? `${pattern.topic}은 학습 과정에서 자주 다루어지는 소재이다.`
       : `${pattern.topic}을 이해하려면 표면적인 현상보다 그 현상이 놓인 맥락을 살펴야 한다.`
 
-  return [
+  const paragraphs = [
     `${styleOpening} ${pattern.opening}`,
     `${pattern.thesis} ${pattern.contrast}`,
     `${pattern.example} ${pattern.development}`,
     pattern.mechanism,
     `${pattern.implication} ${pattern.limitation}`,
     `${pattern.synthesis} 따라서 ${pattern.evidence}`,
-  ].join('\n\n')
+  ]
+
+  if (difficulty === '개념') {
+    return [paragraphs[0], paragraphs[1], `${pattern.example} 따라서 ${pattern.evidence}`].join('\n\n')
+  }
+
+  if (difficulty === '표준') {
+    return [paragraphs[0], paragraphs[1], paragraphs[2], `${pattern.limitation} 따라서 ${pattern.evidence}`].join('\n\n')
+  }
+
+  if (difficulty === '고난도') {
+    return [...paragraphs, pattern.advancedRelation].join('\n\n')
+  }
+
+  return paragraphs.join('\n\n')
 }
 
-function buildChoices(pattern: PassagePattern, problemType: ProblemType, styleMode: StyleMode) {
+function getSkillFocus(problemType: ProblemType, difficulty: Difficulty) {
+  const difficultyFocus: Record<Difficulty, string> = {
+    개념: '직접 근거 확인',
+    표준: '대비 관점과 조건 확인',
+    실전: '조건 누락과 인과 관계 판별',
+    고난도: '두 개념의 관계와 적용 한계 판단',
+  }
+
+  return `${problemType} · ${difficultyFocus[difficulty]}`
+}
+
+function buildChoices(pattern: PassagePattern, problemType: ProblemType, difficulty: Difficulty, styleMode: StyleMode) {
   const hardTrap =
-    styleMode === '고난도 실전형'
+    styleMode === '고난도 실전형' || difficulty === '고난도'
       ? '글쓴이는 대비되는 관점을 부분적으로 인정하지만, 최종 판단에서는 그 관점을 더 우위에 둔다.'
       : '비교되는 관점은 글쓴이가 최종적으로 지지하는 입장이다.'
 
+  const directTrap =
+    difficulty === '개념'
+      ? '글쓴이는 중심 개념을 보조적 사례로만 다룬다.'
+      : hardTrap
+
   if (problemType === '보기 적용') {
+    const viewDistractors =
+      difficulty === '개념'
+        ? pattern.viewDistractors.slice(0, 2)
+        : difficulty === '고난도'
+          ? pattern.viewDistractors
+          : pattern.viewDistractors.slice(0, 3)
+
     return [
       pattern.viewAnswer,
-      ...pattern.viewDistractors.slice(0, 3),
-      hardTrap,
+      ...viewDistractors,
+      directTrap,
     ]
   }
 
   if (problemType === '추론') {
+    const inferenceDistractors =
+      difficulty === '개념'
+        ? pattern.inferenceDistractors.slice(0, 3)
+        : pattern.inferenceDistractors
+
     return [
       pattern.inferenceAnswer,
-      ...pattern.inferenceDistractors,
+      ...inferenceDistractors,
     ]
   }
 
+  const contentDistractors =
+    difficulty === '개념'
+      ? pattern.contentDistractors.slice(0, 3)
+      : pattern.contentDistractors
+
   return [
     pattern.contentAnswer,
-    ...pattern.contentDistractors,
+    ...contentDistractors,
   ]
+}
+
+function normalizeChoices(choices: string[]) {
+  const fallback = '윗글의 일부 표현은 포함하지만 글쓴이의 최종 판단과는 거리가 있다.'
+  const normalized = [...choices]
+
+  while (normalized.length < 5) {
+    normalized.push(fallback)
+  }
+
+  return normalized.slice(0, 5)
+}
+
+function buildChoiceExplanations(choices: string[], answer: string) {
+  return choices.map((choice, index) => {
+    if (choice === answer) {
+      return `${index + 1}번은 지문의 핵심 근거와 조건을 모두 반영한 정답입니다.`
+    }
+
+    if (choice.includes('언제나') || choice.includes('반드시') || choice.includes('충분히 인정')) {
+      return `${index + 1}번은 지문의 조건부 설명을 예외 없는 일반 명제로 바꾼 과잉 일반화 오답입니다.`
+    }
+
+    if (choice.includes('무관') || choice.includes('관련을 맺지') || choice.includes('영향을 주지')) {
+      return `${index + 1}번은 지문에서 제시한 관련성을 끊어 버린 관계 부정 오답입니다.`
+    }
+
+    if (choice.includes('강화') || choice.includes('높아져') || choice.includes('쉽게 모방')) {
+      return `${index + 1}번은 원인과 결과의 방향을 뒤집거나 조건을 반대로 적용한 인과 반전 오답입니다.`
+    }
+
+    if (choice.includes('최종') || choice.includes('우위') || choice.includes('지지')) {
+      return `${index + 1}번은 글에서 대비된 관점을 글쓴이의 결론처럼 바꾼 관점 혼동 오답입니다.`
+    }
+
+    return `${index + 1}번은 지문 일부 표현은 활용하지만 핵심 조건을 누락하거나 적용 범위를 바꾼 오답입니다.`
+  })
 }
 
 function getAnswer(problemType: ProblemType, pattern: PassagePattern) {
@@ -285,9 +378,10 @@ function createQuestion(
   pattern: PassagePattern,
   problemType: ProblemType,
   styleMode: StyleMode,
+  difficulty: Difficulty,
   number: number,
 ): KoreanQuestion {
-  const choices = buildChoices(pattern, problemType, styleMode)
+  const choices = normalizeChoices(buildChoices(pattern, problemType, difficulty, styleMode))
   const answer = getAnswer(problemType, pattern)
 
   return {
@@ -302,6 +396,8 @@ function createQuestion(
       '오답은 글의 일부 표현만 맞거나, 대비되는 관점을 글쓴이의 최종 주장처럼 바꾸는 방식으로 설계했습니다.',
     explanation:
       `정답은 "${pattern.evidence}"라는 글의 결론부와 직접 연결됩니다. 선지를 고를 때는 사례의 표면 내용보다 그 사례가 중심 주장에 어떻게 쓰였는지 확인해야 합니다.`,
+    choiceExplanations: buildChoiceExplanations(choices, answer),
+    skillFocus: getSkillFocus(problemType, difficulty),
   }
 }
 
@@ -322,9 +418,9 @@ export function createKoreanReadingSet(
     difficulty,
     styleMode,
     passageTitle: pattern.title,
-    passage: buildPassage(pattern, styleMode),
+    passage: buildPassage(pattern, difficulty, styleMode),
     concept: pattern.concept,
     evidence: pattern.evidence,
-    questions: questionTypes.map((type, index) => createQuestion(id, pattern, type, styleMode, index + 1)),
+    questions: questionTypes.map((type, index) => createQuestion(id, pattern, type, styleMode, difficulty, index + 1)),
   }
 }
