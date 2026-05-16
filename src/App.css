@@ -279,6 +279,27 @@ input {
   margin-bottom: 6px;
 }
 
+.view-box {
+  display: grid;
+  gap: 10px;
+  border: 1px solid #d9d2c3;
+  border-radius: 6px;
+  background: #fffaf0;
+  margin-bottom: 18px;
+  padding: 18px 20px;
+}
+
+.view-box strong {
+  color: #3f3526;
+  font-size: 14px;
+}
+
+.view-box p {
+  color: #2d342f;
+  line-height: 1.8;
+  word-break: keep-all;
+}
+
 .choices {
   display: grid;
   gap: 12px;

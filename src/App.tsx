@@ -200,6 +200,13 @@ function App() {
                     </div>
                   </div>
 
+                  {question.view && (
+                    <div className="view-box">
+                      <strong>&lt;보기&gt;</strong>
+                      <p>{question.view}</p>
+                    </div>
+                  )}
+
                   <ol className="choices">
                     {question.choices.map((choice, index) => (
                       <li key={choice}>
