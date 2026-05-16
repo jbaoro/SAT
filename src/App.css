@@ -196,7 +196,7 @@ input {
 }
 
 .paper {
-  min-height: 980px;
+  min-height: 1380px;
   border: 1px solid #d7dedc;
   border-radius: 8px;
   background: #fffefa;
@@ -226,8 +226,8 @@ input {
   background: #fffaf0;
   color: #222c30;
   font-size: 18px;
-  line-height: 2.05;
-  padding: 30px;
+  line-height: 2.12;
+  padding: 34px;
   white-space: pre-line;
   word-break: keep-all;
 }
